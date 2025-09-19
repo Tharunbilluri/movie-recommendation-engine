@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎬 Movie Recommendation System - Demo</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="live-status" id="liveStatus">🎬 DEMO</div>
+    
+    <div class="container">
+        <h1>🎬 Movie Recommendation System</h1>
+        <p style="text-align: center; color: #666; margin-bottom: 2rem;">
+            <strong>Live Demo</strong> - Showcasing UI and Frontend Features<br>
+            <em>Full system with Java backend available on GitHub</em>
+        </p>
+        
+        <div class="user-selector">
+            <label>Select User:</label>
+            <select id="userSelect">
+                <option value="1">Alice (Drama Lover)</option>
+                <option value="2">Bob (Action Fan)</option>
+                <option value="3">Charlie (Crime Enthusiast)</option>
+            </select>
+        </div>
+
+        <div class="nav">
+            <button class="nav-btn active" onclick="loadRecommendations('popular')">🔥 Popular</button>
+            <button class="nav-btn" onclick="loadRecommendations('trending')">📈 Trending</button>
+            <button class="nav-btn" onclick="loadRecommendations('recent')">🆕 Recent 2024</button>
+            <button class="nav-btn" onclick="loadRecommendations('industry')">🎭 By Industry</button>
+            <button class="nav-btn" onclick="loadRecommendations('collaborative')">👥 For You</button>
+        </div>
+
+        <div class="industry-selector" id="industrySelector" style="display: none; text-align: center; margin-bottom: 20px;">
+            <label>Select Industry:</label>
+            <select id="industrySelect">
+                <option value="">All Industries</option>
+                <option value="Bollywood">🇮🇳 Bollywood (Hindi)</option>
+                <option value="Tollywood">🎬 Tollywood (Telugu)</option>
+                <option value="Kollywood">🎭 Kollywood (Tamil)</option>
+                <option value="Hollywood">🎪 Hollywood (English)</option>
+                <option value="Sandalwood">🌟 Sandalwood (Kannada)</option>
+                <option value="Mollywood">🎨 Mollywood (Malayalam)</option>
+            </select>
+        </div>
+
+        <div id="loading" class="loading" style="display: none;">Loading movies...</div>
+        <div id="moviesGrid" class="movies-grid"></div>
+
+        <div class="demo-notice" style="background: rgba(255,255,255,0.9); padding: 2rem; border-radius: 15px; margin-top: 2rem; text-align: center;">
+            <h3>🚀 Full System Features</h3>
+            <p>This demo shows the frontend interface. The complete system includes:</p>
+            <ul style="text-align: left; max-width: 600px; margin: 0 auto;">
+                <li>✅ <strong>Java Backend</strong> with REST APIs</li>
+                <li>✅ <strong>Real-time Updates</strong> every 30 seconds</li>
+                <li>✅ <strong>Multiple Algorithms</strong> (Collaborative, Content-based)</li>
+                <li>✅ <strong>Live Movie Data</strong> with TMDB posters</li>
+                <li>✅ <strong>Multi-industry Support</strong> (6+ film industries)</li>
+            </ul>
+            <p><strong>🔗 View Full Source Code:</strong> <a href="https://github.com/Tharunbilluri/movie-recommendation-engine" target="_blank">GitHub Repository</a></p>
+        </div>
+    </div>
+
+    <script>
+        // Demo data for GitHub Pages
+        const demoMovies = {
+            popular: [
+                {
+                    id: 1,
+                    title: "Oppenheimer",
+                    genre: "Biography",
+                    rating: 8.3,
+                    year: 2023,
+                    description: "The story of American scientist J. Robert Oppenheimer and his role in the development of the atomic bomb.",
+                    imageUrl: "https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg",
+                    industry: "Hollywood",
+                    trendingScore: 95,
+                    language: "English"
+                },
+                {
+                    id: 2,
+                    title: "Jawan",
+                    genre: "Action",
+                    rating: 7.0,
+                    year: 2023,
+                    description: "A high-octane action thriller which outlines the emotional journey of a man who is set to rectify the wrongs in the society.",
+                    imageUrl: "https://image.tmdb.org/t/p/w500/5ScPNT6fHtfYJeWBajZciPV3hEL.jpg",
+                    industry: "Bollywood",
+                    trendingScore: 98,
+                    language: "Hindi"
+                },
+                {
+                    id: 3,
+                    title: "RRR",
+                    genre: "Action",
+                    rating: 7.9,
+                    year: 2022,
+                    description: "A fearless revolutionary and an officer in the British force, who once shared a deep bond, decide to join forces and chart out an inspirational path of freedom against the despotic rule.",
+                    imageUrl: "https://image.tmdb.org/t/p/w500/w6n1pu9thpCVHILejsuhKf3tNCV.jpg",
+                    industry: "Tollywood",
+                    trendingScore: 96,
+                    language: "Telugu"
+                },
+                {
+                    id: 4,
+                    title: "Leo",
+                    genre: "Action",
+                    rating: 7.2,
+                    year: 2023,
+                    description: "Parthiban lives a simple life in Shimla along with wife Sathya and two children and runs a small cafe. However, things take a turn when he gets involved in a road accident.",
+                    imageUrl: "https://image.tmdb.org/t/p/w500/pCUdYAaarKqY2AAUtV6xXYO8UGY.jpg",
+                    industry: "Kollywood",
+                    trendingScore: 93,
+                    language: "Tamil"
+                }
+            ]
+        };
+
+        let currentType = 'popular';
+
+        function loadRecommendations(type) {
+            currentType = type;
+            
+            // Update active button
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Show/hide industry selector
+            const industrySelector = document.getElementById('industrySelector');
+            if (type === 'trending' || type === 'industry') {
+                industrySelector.style.display = 'block';
+            } else {
+                industrySelector.style.display = 'none';
+            }
+            
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('moviesGrid').innerHTML = '';
+            
+            // Simulate loading delay
+            setTimeout(() => {
+                displayMovies(demoMovies.popular, type);
+                document.getElementById('loading').style.display = 'none';
+            }, 1000);
+        }
+
+        function displayMovies(movies, type) {
+            const grid = document.getElementById('moviesGrid');
+            
+            grid.innerHTML = movies.map(movie => `
+                <div class="movie-card">
+                    <img src="${movie.imageUrl}" alt="${movie.title}" class="movie-poster-img" onerror="this.style.display='none'">
+                    <div class="movie-title">
+                        ${movie.title}
+                        <span class="industry-badge">${movie.industry}</span>
+                        ${(type === 'trending' || type === 'recent') && movie.trendingScore ? `<span class="trending-badge">🔥 ${movie.trendingScore}</span>` : ''}
+                    </div>
+                    <div class="movie-info">
+                        <div><strong>Genre:</strong> ${movie.genre}</div>
+                        <div><strong>Year:</strong> ${movie.year}</div>
+                        <div><strong>Language:</strong> ${movie.language}</div>
+                        <div class="rating"><strong>Rating:</strong> ⭐ ${movie.rating}</div>
+                    </div>
+                    <p>${movie.description}</p>
+                </div>
+            `).join('');
+        }
+
+        // Load popular movies on page load
+        window.onload = () => {
+            loadRecommendations('popular');
+        };
+
+        // Update live status
+        setInterval(() => {
+            const liveStatus = document.getElementById('liveStatus');
+            liveStatus.textContent = liveStatus.textContent === '🎬 DEMO' ? '✨ DEMO' : '🎬 DEMO';
+        }, 2000);
+    </script>
+</body>
+</html>
