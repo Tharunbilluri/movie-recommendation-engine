@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Recommendation System</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            color: white;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            text-align: center;
+            font-size: 3rem;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .nav {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .nav-btn:hover, .nav-btn.active {
+            background: white;
+            color: #667eea;
+            transform: translateY(-2px);
+        }
+        .movies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .movie-card {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .movie-card:hover {
+            transform: translateY(-5px);
+        }
+        .movie-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .movie-info {
+            margin-bottom: 15px;
+        }
+        .rating {
+            color: #ff6b35;
+            font-weight: bold;
+        }
+        .loading {
+            text-align: center;
+            font-size: 1.2rem;
+            margin: 50px 0;
+        }
+        .user-selector {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .user-selector select, .industry-selector select {
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: none;
+            font-size: 1rem;
+            margin-left: 10px;
+        }
+        .industry-badge {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .trending-badge {
+            background: linear-gradient(45deg, #FF9500, #FF6B35);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+        #liveIndicator {
+            animation: pulse 2s infinite;
+            font-size: 0.8rem;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        .movie-poster-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .live-status {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 0, 0, 0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div class="live-status" id="liveStatus">🔴 LIVE</div>
+    
+    <div class="container">
+        <h1>🎬 Movie Recommendation System</h1>
+        
+        <div class="user-selector">
+            <label>Select User:</label>
+            <select id="userSelect">
+                <option value="1">Alice (Drama Lover)</option>
+                <option value="2">Bob (Action Fan)</option>
+                <option value="3">Charlie (Crime Enthusiast)</option>
+            </select>
+        </div>
+
+        <div class="nav">
+            <button class="nav-btn active" onclick="loadRecommendations('popular')">🔥 Popular</button>
+            <button class="nav-btn" onclick="loadRecommendations('trending')">📈 Trending <span id="liveIndicator">🔴</span></button>
+            <button class="nav-btn" onclick="loadRecommendations('recent')">🆕 Recent 2024</button>
+            <button class="nav-btn" onclick="loadRecommendations('industry')">🎭 By Industry</button>
+            <button class="nav-btn" onclick="loadRecommendations('collaborative')">👥 For You</button>
+        </div>
+
+        <div class="industry-selector" id="industrySelector" style="display: none; text-align: center; margin-bottom: 20px;">
+            <label>Select Industry:</label>
+            <select id="industrySelect">
+                <option value="">All Industries</option>
+                <option value="Bollywood">🇮🇳 Bollywood (Hindi)</option>
+                <option value="Tollywood">🎬 Tollywood (Telugu)</option>
+                <option value="Kollywood">🎭 Kollywood (Tamil)</option>
+                <option value="Hollywood">🎪 Hollywood (English)</option>
+                <option value="Sandalwood">🌟 Sandalwood (Kannada)</option>
+                <option value="Mollywood">🎨 Mollywood (Malayalam)</option>
+            </select>
+        </div>
+
+        <div id="loading" class="loading">Loading movies...</div>
+        <div id="moviesGrid" class="movies-grid"></div>
+    </div>
+
+    <script>
+        let currentType = 'popular';
+
+        async function loadRecommendations(type) {
+            currentType = type;
+            
+            // Update active button
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Show/hide industry selector
+            const industrySelector = document.getElementById('industrySelector');
+            if (type === 'trending' || type === 'industry') {
+                industrySelector.style.display = 'block';
+            } else {
+                industrySelector.style.display = 'none';
+            }
+            
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('moviesGrid').innerHTML = '';
+            
+            try {
+                let url;
+                const userId = document.getElementById('userSelect').value;
+                const industry = document.getElementById('industrySelect').value;
+                
+                switch(type) {
+                    case 'popular':
+                        url = '/api/recommendations/popular?limit=12';
+                        break;
+                    case 'trending':
+                        url = industry ? `/api/recommendations/trending?industry=${industry}&limit=12` : '/api/recommendations/trending?limit=12';
+                        break;
+                    case 'recent':
+                        url = '/api/movies/recent?limit=12';
+                        break;
+                    case 'industry':
+                        url = industry ? `/api/movies/industry?industry=${industry}&limit=12` : '/api/movies?limit=12';
+                        break;
+                    case 'collaborative':
+                        url = `/api/recommendations/collaborative?userId=${userId}&limit=8`;
+                        break;
+                }
+                
+                const response = await fetch(url);
+                const movies = await response.json();
+                
+                displayMovies(movies, type);
+            } catch (error) {
+                console.error('Error loading movies:', error);
+                document.getElementById('moviesGrid').innerHTML = '<p>Error loading movies. Please try again.</p>';
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        function displayMovies(movies, type) {
+            const grid = document.getElementById('moviesGrid');
+            
+            if (movies.length === 0) {
+                grid.innerHTML = '<p>No movies found.</p>';
+                return;
+            }
+            
+            grid.innerHTML = movies.map(movie => `
+                <div class="movie-card">
+                    ${movie.imageUrl ? `<img src="${movie.imageUrl}" alt="${movie.title}" class="movie-poster-img" onerror="this.style.display='none'">` : ''}
+                    <div class="movie-title">
+                        ${movie.title}
+                        ${movie.industry ? `<span class="industry-badge">${movie.industry}</span>` : ''}
+                        ${(type === 'trending' || type === 'recent') && movie.trendingScore ? `<span class="trending-badge">🔥 ${movie.trendingScore}</span>` : ''}
+                    </div>
+                    <div class="movie-info">
+                        <div><strong>Genre:</strong> ${movie.genre}</div>
+                        <div><strong>Year:</strong> ${movie.year}</div>
+                        ${movie.language ? `<div><strong>Language:</strong> ${movie.language}</div>` : ''}
+                        <div class="rating"><strong>Rating:</strong> ⭐ ${movie.rating}</div>
+                    </div>
+                    <p>${movie.description}</p>
+                </div>
+            `).join('');
+        }
+
+        // Auto-refresh trending data every 35 seconds
+        let autoRefreshInterval;
+        
+        function startAutoRefresh() {
+            if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+            
+            if (currentType === 'trending' || currentType === 'recent') {
+                autoRefreshInterval = setInterval(() => {
+                    console.log('🔄 Auto-refreshing trending data...');
+                    loadRecommendations(currentType);
+                    updateLiveStatus();
+                }, 35000); // 35 seconds
+            }
+        }
+
+        function updateLiveStatus() {
+            const liveStatus = document.getElementById('liveStatus');
+            liveStatus.textContent = '🔄 UPDATING...';
+            setTimeout(() => {
+                liveStatus.textContent = '🔴 LIVE';
+            }, 2000);
+        }
+
+        // Load popular movies on page load
+        window.onload = () => {
+            loadRecommendations('popular');
+            startAutoRefresh();
+        };
+
+        // Update recommendations when user changes
+        document.getElementById('userSelect').addEventListener('change', () => {
+            if (currentType === 'collaborative') {
+                loadRecommendations('collaborative');
+            }
+        });
+
+        // Update recommendations when industry changes
+        document.getElementById('industrySelect').addEventListener('change', () => {
+            if (currentType === 'trending' || currentType === 'industry') {
+                loadRecommendations(currentType);
+            }
+        });
+
+        // Override loadRecommendations to handle auto-refresh
+        const originalLoadRecommendations = loadRecommendations;
+        loadRecommendations = function(type) {
+            originalLoadRecommendations.call(this, type);
+            startAutoRefresh(); // Restart auto-refresh when switching sections
+        };
+    </script>
+</body>
+</html>

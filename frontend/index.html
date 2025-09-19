@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Recommendation System</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="logo">
+                    <i class="fas fa-film"></i>
+                    MovieRec
+                </h1>
+                <nav class="nav">
+                    <button class="nav-btn active" data-section="popular">
+                        <i class="fas fa-fire"></i>
+                        Popular
+                    </button>
+                    <button class="nav-btn" data-section="content">
+                        <i class="fas fa-tags"></i>
+                        By Genre
+                    </button>
+                    <button class="nav-btn" data-section="collaborative">
+                        <i class="fas fa-users"></i>
+                        For You
+                    </button>
+                </nav>
+            </div>
+        </header>
+
+        <!-- User Selection -->
+        <div class="user-section">
+            <div class="user-selector">
+                <label for="userSelect">
+                    <i class="fas fa-user"></i>
+                    Select User:
+                </label>
+                <select id="userSelect">
+                    <option value="1">Alice (Drama Lover)</option>
+                    <option value="2">Bob (Action Fan)</option>
+                    <option value="3">Charlie (Crime Enthusiast)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Genre Filter (for content-based recommendations) -->
+        <div class="filter-section" id="genreFilter" style="display: none;">
+            <div class="genre-selector">
+                <label for="genreSelect">
+                    <i class="fas fa-filter"></i>
+                    Select Genre:
+                </label>
+                <select id="genreSelect">
+                    <option value="Drama">Drama</option>
+                    <option value="Action">Action</option>
+                    <option value="Crime">Crime</option>
+                    <option value="Sci-Fi">Sci-Fi</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Loading recommendations...</p>
+        </div>
+
+        <!-- Recommendations Section -->
+        <main class="main-content">
+            <div class="section-header">
+                <h2 id="sectionTitle">Popular Movies</h2>
+                <p id="sectionDescription">Discover the most highly-rated movies</p>
+            </div>
+
+            <div class="movies-grid" id="moviesGrid">
+                <!-- Movies will be dynamically loaded here -->
+            </div>
+        </main>
+
+        <!-- Movie Details Modal -->
+        <div class="modal" id="movieModal">
+            <div class="modal-content">
+                <span class="close" id="closeModal">&times;</span>
+                <div class="modal-body">
+                    <div class="movie-poster">
+                        <img id="modalPoster" src="" alt="Movie Poster">
+                    </div>
+                    <div class="movie-info">
+                        <h2 id="modalTitle"></h2>
+                        <div class="movie-meta">
+                            <span class="year" id="modalYear"></span>
+                            <span class="genre" id="modalGenre"></span>
+                            <span class="rating">
+                                <i class="fas fa-star"></i>
+                                <span id="modalRating"></span>
+                            </span>
+                        </div>
+                        <p class="description" id="modalDescription"></p>
+                        
+                        <!-- Rating Section -->
+                        <div class="rating-section">
+                            <h3>Rate this movie:</h3>
+                            <div class="star-rating" id="starRating">
+                                <i class="fas fa-star" data-rating="1"></i>
+                                <i class="fas fa-star" data-rating="2"></i>
+                                <i class="fas fa-star" data-rating="3"></i>
+                                <i class="fas fa-star" data-rating="4"></i>
+                                <i class="fas fa-star" data-rating="5"></i>
+                            </div>
+                            <button class="rate-btn" id="submitRating">Submit Rating</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div class="toast" id="toast">
+            <div class="toast-content">
+                <i class="fas fa-check-circle"></i>
+                <span id="toastMessage">Rating submitted successfully!</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
