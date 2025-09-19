@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Movie Recommendation System
 
 A comprehensive movie recommendation system built with Java backend and modern web frontend using HTML, CSS, and JavaScript.
@@ -239,3 +240,7 @@ This project is open source and available under the MIT License.
 ## Support
 
 For questions or issues, please create an issue in the project repository.
+=======
+# movie-recommendation-engine
+🎬 Intelligent Movie Recommendation System with Real-Time Updates  Full-stack platform with collaborative filtering, content-based &amp; popularity algorithms. Features live trending updates, multi-industry support (Bollywood, Tollywood, Hollywood) &amp; real movie data.   Live Updates | Real Data | Multi-Industry | Responsive Java | HTML/CSS/JS | REST API
+>>>>>>> 91da857fc18958eb773dfcbbec7f46a85173a341
